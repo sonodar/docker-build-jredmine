@@ -22,7 +22,7 @@ RUN git clone -b $REDMINE_VERSION-stable https://github.com/redmine/redmine.git 
 WORKDIR ${REDMINE_ROOT}
 
 # Add gems
-RUN echo 'gem "warbler"' >> Gemfile
+RUN echo 'gem "warbler", "1.4.4"' >> Gemfile
 RUN echo 'gem "rmagick4j"' >> Gemfile
 
 # Add database.yml (see. database.yml)
@@ -31,18 +31,23 @@ ADD database.yml ${REDMINE_ROOT}/config/database.yml
 # Install bundles
 RUN jruby -S bundle install --without development test --path vendor/bundle
 
+# Clean up
+RUN apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/*
+
 # Create database for migration
 RUN /etc/init.d/mysql start && sleep 10 \
     && echo "CREATE DATABASE redmine DEFAULT CHARACTER SET utf8;" | mysql -uroot \
     && echo "GRANT ALL ON redmine.* to redmine@localhost identified by 'redmine';" | mysql -uroot \
-    && echo "FLUSH PRIVILEGES" | mysql -uroot
+    && echo "FLUSH PRIVILEGES;" | mysql -uroot \
+    && echo "Database created, and migrating ..." \
+    && jruby -S bundle exec rake db:migrate --trace
+
+RUN jruby -S bundle exec rake generate_secret_token
 
 # Add build script (see. jredmine-build.sh)
 ADD build-jredmine.sh /build-jredmine.sh
 CMD ["/bin/bash", "/build-jredmine.sh"]
 
-# Add warble.rb (see. warble.rb)
-ADD warble.rb ${REDMINE_ROOT}/config/warble.rb
+## Add warble.rb (see. warble.rb)
+#ADD warble.rb ${REDMINE_ROOT}/config/warble.rb
 
-# Clean up
-RUN apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/*

@@ -1,0 +1,14 @@
+jredmine:
+#  build: .
+  image: sonodar/build-jredmine
+  volumes:
+    - ./plugins:/opt/redmine/additional_plugins
+    - ./themes:/opt/redmine/additional_themes
+    - ./build:/build
+    - ./warble.rb:/var/lib/redmine/config/warble.rb
+  environment:
+    - ADDITIONAL_PLUGIN_DIR=/opt/redmine/additional_plugins
+    - ADDITIONAL_THEME_DIR=/opt/redmine/additional_themes
+    - BUILD_DIR=/build
+    - REDMINE_LANG=ja
+

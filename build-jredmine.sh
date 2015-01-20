@@ -30,15 +30,22 @@ if [[ -d ${ADDITIONAL_THEME_DIR} ]]; then
   fi
 fi
 
-echo "Execute database migration, and load default data for japanese."
+echo "Execute database migration, and load default data."
 jruby -S bundle exec rake db:migrate --trace
 jruby -S bundle exec rake redmine:load_default_data REDMINE_LANG=${REDMINE_LANG:=ja} --trace
+
+if [[ -d ${ADDITIONAL_PLUGIN_DIR} ]]; then
+  if [[ $(ls -U1 ${ADDITIONAL_PLUGIN_DIR} | grep -v README | wc -l) != "0" ]]; then
+    echo "Migrating additional plugins ... "
+    jruby -S bundle exec rake redmine:plugins:migrate --trace
+  fi
+fi
 
 echo "Execute mysqldump for redmine database."
 mysqldump -uredmine -predmine redmine > redmine.dmp
 
 echo "Making redmine.war"
-jruby -S bundle exec warble
+jruby -S bundle exec warble --trace
 
 echo "Coping built files."
 cp redmine.war redmine.dmp ${BUILD_DIR}/

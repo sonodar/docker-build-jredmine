@@ -12,4 +12,5 @@ Warbler::Config.new do |config|
   config.bytecode_version = '1.8'
   config.webxml.rails.env = ENV['RAILS_ENV'] || 'production'
   config.webxml.jruby.compat.version = '2.0'
+  config.webxml.jruby.runtime.arguments = '--2.0'
 end

@@ -11,13 +11,14 @@ ADDITIONAL_THEME_DIR=/opt/redmine/additional_themes
 BUILD_DIR=/build
 
 sudo docker run -it --rm \
-  -v `pwd`/plugins:$ADDITIONAL_PLUGIN_DIR \
-  -v `pwd`/themes:$ADDITIONAL_THEME_DIR \
-  -v `pwd`/build:$BUILD_DIR \
   -e ADDITIONAL_PLUGIN_DIR=$ADDITIONAL_PLUGIN_DIR \
   -e ADDITIONAL_THEME_DIR=$ADDITIONAL_THEME_DIR \
   -e BUILD_DIR=$BUILD_DIR \
   -e REDMINE_LANG=ja \
+  -v `pwd`/plugins:$ADDITIONAL_PLUGIN_DIR \
+  -v `pwd`/themes:$ADDITIONAL_THEME_DIR \
+  -v `pwd`/build:$BUILD_DIR \
+  -v `pwd`/warble.rb:/var/lib/redmine/config/warble.rb \
   sonodar/build-jredmine
 ```
 
